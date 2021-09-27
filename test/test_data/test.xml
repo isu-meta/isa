@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd" version="3.6">
+    <titleInfo>
+        <title>Occupational apartheid and the plantation system in American sports: the problems, the consequences and the response</title>
+    </titleInfo>
+    <relatedItem type="original" displayLabel="Collection">
+        <identifier displayLabel="Call Number">RS 8/6/53</identifier>
+        <titleInfo>
+            <title>Iowa State University Lecture Series (RS 8/6/53)</title>
+        </titleInfo>
+        <identifier type="ark">https://n2t.net/ark:/87292/w9bc3sw9v</identifier>
+        <location>
+            <physicalLocation>Physical location</physicalLocation>
+        </location>
+        <relatedItem type="series">
+            <titleInfo displayLabel="Archival series title">
+                <title>Series title</title>
+            </titleInfo>
+            <relatedItem type="constituent">
+                <titleInfo displayLabel="Folder title">
+                    <title>Folder title</title>
+                </titleInfo>
+            </relatedItem>
+        </relatedItem>
+        <relatedItem type="constituent">
+            <titleInfo displayLabel="Box">
+                <title>Box</title>
+            </titleInfo>
+            <relatedItem type="constituent">
+                <titleInfo displayLabel="Folder">
+                    <title>Folder</title>
+                </titleInfo>
+            </relatedItem>
+        </relatedItem>
+    </relatedItem>
+    <relatedItem type="host" displayLabel="Digital Collection">
+        <titleInfo>
+            <title>Iowa State University Lecture Series</title>
+        </titleInfo>
+        <identifier type="ark">https://n2t.net/ark:/87292/w9bc3sw9</identifier>
+    </relatedItem>
+    <name type="corporate" authority="naf">
+        <namePart>Iowa State University. Special Collections and University Archives</namePart>
+        <role>
+            <roleTerm authority="marcrelator" type="text">curator</roleTerm>
+        </role>
+    </name>
+    <name type="personal" valueURI="http://id.loc.gov/authorities/names/n80097523" authority="naf">
+        <namePart>Edwards, Harry, 1942-</namePart>
+        <role>
+            <roleTerm type="text" authority="marcrelator">creator</roleTerm>
+        </role>
+    </name>
+    <name type="corporate" valueURI="http://id.loc.gov/authorities/names/n80097523" authority="naf">
+        <namePart>Corporate creator</namePart>
+        <role>
+            <roleTerm type="text" authority="marcrelator">creator</roleTerm>
+        </role>
+    </name>
+    <name type="personal" valueURI="http://id.loc.gov/authorities/names/n80097523" authority="naf">
+        <namePart>Interviewee</namePart>
+        <role>
+            <roleTerm type="text" authority="marcrelator">interviewee</roleTerm>
+        </role>
+    </name>
+    <name type="personal" valueURI="http://id.loc.gov/authorities/names/n80097523" authority="naf">
+        <namePart>Interviewer</namePart>
+        <role>
+            <roleTerm type="text" authority="marcrelator">interviewer</roleTerm>
+        </role>
+    </name>
+    <name type="personal" valueURI="http://id.loc.gov/authorities/names/n80097523" authority="naf">
+        <namePart>Contributor, Person</namePart>
+        <role>
+            <roleTerm type="text" authority="marcrelator">contributor</roleTerm>
+        </role>
+    </name>
+    <name type="corporate" valueURI="http://id.loc.gov/authorities/names/n80097523" authority="naf">
+        <namePart>Corporate contributor</namePart>
+        <role>
+            <roleTerm type="text" authority="marcrelator">contributor</roleTerm>
+        </role>
+    </name>
+    <originInfo>
+        <publisher>Publisher</publisher>
+        <place>
+            <placeTerm type="text">Place of Origin</placeTerm>
+        </place>
+        <dateCreated keyDate="yes" encoding="iso8601">1989-09-02</dateCreated>
+        <dateCaptured encoding="iso8601">2021</dateCaptured>
+        <issuance>continuing</issuance>
+        <dateIssued encoding="iso8601" point="start">1990</dateIssued>
+        <dateIssued encoding="iso8601" point="end">1991</dateIssued>
+        <frequency authority="marcfrequency">monthly</frequency>
+    </originInfo>
+    <abstract>Occupational Apartheid and the Plantation System In American Sports is a February 9, 1989 event in the Iowa State University Lecture Series featuring Harry Edwards. Harry Edwards discusses how stereotypes of African Americans limits their opportunities in employment and participation in sports.</abstract>
+    <note type="annotation">The ISU Lecture Series comprises more than 3,000 audiovisual recordings in a multitude of formats dating back to 1958. Committed to the philosophy that the function of the university is to provide "a marketplace of ideas," the Lecture Series has brought to the ISU campus a broad spectrum of talks: political debates, academic forums, and cultural events, including musical performances, art and dance programs, and films. In addition, since 1966, ISU has hosted annual series devoted to national affairs and world affairs.; This item was captioned by Rev.com in conformance with WCAG 2.1 AA accessibility guidelines.</note>
+    <tableOfContents>Table of Contents</tableOfContents>
+    <language>
+        <languageTerm type="code" authority="iso639-3">eng</languageTerm>
+    </language>
+    <location>
+        <url>http://example.com</url>
+    </location>
+    <subject authority="lcsh">
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh85075676">Lectures and lecturing</topic>
+    </subject>
+    <subject authority="fast">
+        <topic valueURI="http://id.worldcat.org/fast/1086449">Race--Social aspects</topic>
+        <topic valueURI="http://id.worldcat.org/fast/799610">African Americans--Employment</topic>
+        <topic valueURI="http://id.worldcat.org/fast/799025">African American athletes</topic>
+        <topic valueURI="http://id.worldcat.org/fast/1431528">Stereotypes (Social psychology) in sports</topic>
+    </subject>
+    <subject authority="local">
+        <topic valueURI="http://id.loc.gov/local">local topic</topic>
+    </subject>
+    <subject authority="gbif">
+        <topic valueURI="http://id.loc.gov/bird">Bird topic</topic>
+    </subject>
+    <subject authority="naf">
+        <name valueURI="http://id.loc.gov/personal-subject" type="personal">
+            <namePart>Smith, Smithy S.</namePart>
+        </name>
+    </subject>
+    <subject authority="naf">
+        <name valueURI="http://id.loc.gov/authorities/names/n81041658" type="corporate">
+            <namePart>Iowa State University</namePart>
+        </name>
+    </subject>
+    <subject authority="fast">
+        <topic valueURI="http://id.worldcat.org/fast/1086449">Race--Social aspects</topic>
+        <topic valueURI="http://id.worldcat.org/fast/799610">African Americans--Employment</topic>
+        <topic valueURI="http://id.worldcat.org/fast/799025">African American athletes</topic>
+        <topic valueURI="http://id.worldcat.org/fast/1431528">Stereotypes (Social psychology) in sports</topic>
+    </subject>
+    <subject authority="lcsh">
+        <geographic valueURI="http://id.loc.gov/authorities/names/n80009931">Ames (Iowa)</geographic>
+    </subject>
+    <subject authority="fast">
+        <geographic valueURI="http://id.worldcat.org/fast/1431528">Ames (Iowa)</geographic>
+    </subject>
+    <subject authority="geonames">
+        <geographic valueURI="http://geonames.org">Ames</geographic>
+    </subject>
+    <subject authority="local">
+        <geographic valueURI="http://geographic.local">Some place around here</geographic>
+    </subject>
+    <subject>
+        <topic valueURI="http://event.go">Event</topic>
+    </subject>
+    <subject>
+        <temporal valueURI="http://some.time">1990s</temporal>
+    </subject>
+    <genre authority="aat" valueURI="http://vocab.getty.edu/aat/300026673">lectures</genre>
+    <genre authority="cco">CCO descriptive text</genre>
+    <genre authority="dct" valueURI="http://dct.dct">Sound</genre>
+    <typeOfResource>sound recording</typeOfResource>
+    <accessCondition type="use and reproduction">Access restricted to scholarly use only.; This Item is protected by copyright and/or related rights. You are free to use this Item in any way that is permitted by the copyright and related rights legislation that applies to your use. For other uses you need to obtain permission from the rights-holder(s).</accessCondition>
+    <genre authority="imt">audio/mpeg</genre>
+    <recordInfo>
+        <recordCreationDate encoding="iso8601">2021-07-07</recordCreationDate>
+        <recordChangeDate encoding="iso8601">2021-07-07</recordChangeDate>
+    </recordInfo>
+    <physicalDescription>
+        <extent>1 1/4 inch audio cassette</extent>
+        <digitalOrigin>reformatted digital</digitalOrigin>
+        <reformattingQuality>access</reformattingQuality>
+        <reformattingQuality>preservation</reformattingQuality>
+        <note type="image-manipulation">image manipulation</note>
+        <note type="bits-per-sample">bits per sample</note>
+        <note type="samples-per-pixel">samples per pixel</note>
+        <note type="colorspace">colorspace</note>
+        <note type="resolution">resolution</note>
+        <note type="file-size">file size</note>
+        <note type="height">height</note>
+        <note type="width">width</note>
+    </physicalDescription>
+    <identifier type="local">RS008-006-053_AV005248</identifier>
+    <identifier type="ark">https://n2t.net/ark:/87292/w9h98zj58</identifier>
+    <identifier type="avian-id">avian id</identifier>
+    <identifier type="uid">uid</identifier>
+    <identifier type="project-number">project number</identifier>
+    <identifier>file_name.tif</identifier>
+    <identifier type="islandora">isu:Lectures_AV005248</identifier>
+    <note type="hardware/software">I am become digitized</note>
+</mods>
