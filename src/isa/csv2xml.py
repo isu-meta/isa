@@ -1,6 +1,8 @@
 import csv
+from io import StringIO
 from itertools import zip_longest
 from pathlib import Path
+from xml.sax.saxutils import escape
 
 
 def load_csv(csv_file, newline="", delimiter=",", dialect="excel", encoding="utf8"):
@@ -143,46 +145,46 @@ class SpreadsheetMD:
         return f"""<?xml version='1.0' encoding='UTF-8'?>
 <mods xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd" version="3.6">
   <titleInfo>
-    <title>{self.title}</title>
+    <title>{escape(self.title)}</title>
   </titleInfo>
   <relatedItem type="original" displayLabel="Collection">
-    <identifier displayLabel="Call Number">{self.archival_call_number}</identifier>
+    <identifier displayLabel="Call Number">{escape(self.archival_call_number)}</identifier>
     <titleInfo>
-      <title>{self.archival_collection}</title>
+      <title>{escape(self.archival_collection)}</title>
     </titleInfo>
-    <identifier type="ark">{self.finding_aid_ark}</identifier>
+    <identifier type="ark">{escape(self.finding_aid_ark)}</identifier>
     <location>
-      <physicalLocation>{self.physical_location}</physicalLocation>
+      <physicalLocation>{escape(self.physical_location)}</physicalLocation>
     </location>
     <relatedItem type="series">
     <titleInfo displayLabel="Archival series title">
-      <title>{self.archival_series_title}</title>
+      <title>{escape(self.archival_series_title)}</title>
     </titleInfo>
     <relatedItem type="constituent">
       <titleInfo displayLabel="Folder title">
-        <title>{self.folder_title}</title>
+        <title>{escape(self.folder_title)}</title>
       </titleInfo>
     </relatedItem>
     </relatedItem>
     <relatedItem type="constituent">
       <titleInfo displayLabel="Box">
-        <title>{self.box}</title>
+        <title>{escape(self.box)}</title>
       </titleInfo>
       <relatedItem type="constituent">
         <titleInfo displayLabel="Folder">
-          <title>{self.folder}</title>
+          <title>{escape(self.folder)}</title>
         </titleInfo>
       </relatedItem>
     </relatedItem>
   </relatedItem>
   <relatedItem type="host" displayLabel="Digital Collection">
     <titleInfo>
-      <title>{self.digital_collection}</title>
+      <title>{escape(self.digital_collection)}</title>
     </titleInfo>
-    <identifier type="ark">{self.digital_collection_ark}</identifier>
+    <identifier type="ark">{escape(self.digital_collection_ark)}</identifier>
   </relatedItem>
   <name type="corporate" authority="naf">
-    <namePart>{self.contributing_institution}</namePart>
+    <namePart>{escape(self.contributing_institution)}</namePart>
     <role>
       <roleTerm authority="marcrelator" type="text">curator</roleTerm>
     </role>
@@ -194,109 +196,111 @@ class SpreadsheetMD:
   {self.names_uris_to_xml(self.personal_contributor, self.personal_contributor_valueURI, "personal", "contributor")}
   {self.names_uris_to_xml(self.corporate_contributor, self.corporate_contributor_valueURI, "corporate", "contributor")}
   <originInfo>
-    <publisher>{self.publisher}</publisher>
+    <publisher>{escape(self.publisher)}</publisher>
     <place>
-      <placeTerm type="text">{self.place_of_origin}</placeTerm>
+      <placeTerm type="text">{escape(self.place_of_origin)}</placeTerm>
     </place>
-    <dateCreated keyDate="yes" encoding="iso8601">{self.date_original}</dateCreated>
-    <dateCaptured encoding="iso8601">{self.date_digital}</dateCaptured>
-    {f"<issuance>{self.issuance}</issuance>" if self.issuance else ""}
-    <dateIssued encoding="iso8601" point="start">{self.issuance_start}</dateIssued>
-    <dateIssued encoding="iso8601" point="end">{self.issuance_end}</dateIssued>
-    <frequency authority="marcfrequency">{self.frequency}</frequency>
+    <dateCreated keyDate="yes" encoding="iso8601">{escape(self.date_original)}</dateCreated>
+    <dateCaptured encoding="iso8601">{escape(self.date_digital)}</dateCaptured>
+{f"    <issuance>{escape(self.issuance)}</issuance>" if self.issuance else ""}
+    <dateIssued encoding="iso8601" point="start">{escape(self.issuance_start)}</dateIssued>
+    <dateIssued encoding="iso8601" point="end">{escape(self.issuance_end)}</dateIssued>
+    <frequency authority="marcfrequency">{escape(self.frequency)}</frequency>
   </originInfo>
-  <abstract>{self.description}</abstract>
-  <note type="annotation">{self.annotation}</note>
-  <tableOfContents>{self.table_of_contents}</tableOfContents>
+  <abstract>{escape(self.description)}</abstract>
+  <note type="annotation">{escape(self.annotation)}</note>
+  <tableOfContents>{escape(self.table_of_contents)}</tableOfContents>
   <language>
-    <languageTerm type="code" authority="iso639-3">{self.language}</languageTerm>
+    <languageTerm type="code" authority="iso639-3">{escape(self.language)}</languageTerm>
   </language>
   <location>
-    <url>{self.url}</url>
+    <url>{escape(self.url)}</url>
   </location>
   <subject authority="lcsh">
-  {self.subjects_to_xml(self.topical_subject_lcsh, self.topical_subject_lcsh_valueURI, "topic")}
+{self.subjects_to_xml(self.topical_subject_lcsh, self.topical_subject_lcsh_valueURI, "topic")}
   </subject>
   <subject authority="fast">
-  {self.subjects_to_xml(self.topical_subject_fast, self.topical_subject_fast_valueURI, "topic")}
+{self.subjects_to_xml(self.topical_subject_fast, self.topical_subject_fast_valueURI, "topic")}
   </subject>
   <subject authority="local">
-  {self.subjects_to_xml(self.topical_subject_local, self.topical_subject_local_valueURI, "topic")}
+{self.subjects_to_xml(self.topical_subject_local, self.topical_subject_local_valueURI, "topic")}
   </subject>
   <subject authority="local">
-  {self.subjects_to_xml(self.topical_subject_local, self.topical_subject_local_valueURI, "topic")}
+{self.subjects_to_xml(self.topical_subject_local, self.topical_subject_local_valueURI, "topic")}
   </subject>
   <subject authority="lcsh">
-  {self.subjects_to_xml(self.birds_subject, self.birds_subject_valueURI, "topic")}
+{self.subjects_to_xml(self.birds_subject, self.birds_subject_valueURI, "topic")}
   </subject>
   <subject authority="naf">
-  {self.subject_names_to_xml(self.personal_name_subject, self.personal_name_subject_valueURI, "personal")}
+{self.subject_names_to_xml(self.personal_name_subject, self.personal_name_subject_valueURI, "personal")}
   </subject>
   <subject authority="naf">
-  {self.subject_names_to_xml(self.corporate_name_subject, self.corporate_name_subject_valueURI, "corporate")}
+{self.subject_names_to_xml(self.corporate_name_subject, self.corporate_name_subject_valueURI, "corporate")}
   </subject>
   <subject authority="fast">
-  {self.subjects_to_xml(self.topical_subject_fast, self.topical_subject_fast_valueURI, "topic")}
+{self.subjects_to_xml(self.topical_subject_fast, self.topical_subject_fast_valueURI, "topic")}
   </subject>
   <subject authority="lcsh">
-  {self.subjects_to_xml(self.geographic_subject_lcsh, self.geographic_subject_lcsh_valueURI, "geographic")}
+{self.subjects_to_xml(self.geographic_subject_lcsh, self.geographic_subject_lcsh_valueURI, "geographic")}
   </subject>
   <subject authority="fast">
-  {self.subjects_to_xml(self.geographic_subject_fast, self.geographic_subject_fast_valueURI, "geographic")}
+{self.subjects_to_xml(self.geographic_subject_fast, self.geographic_subject_fast_valueURI, "geographic")}
   </subject>
   <subject authority="geonames">
-  {self.subjects_to_xml(self.geographic_subject_geonames, self.geographic_subject_geonames_valueURI, "geographic")}
+{self.subjects_to_xml(self.geographic_subject_geonames, self.geographic_subject_geonames_valueURI, "geographic")}
   </subject>
   <subject authority="local">
-  {self.subjects_to_xml(self.geographic_subject_local, self.geographic_subject_local_valueURI, "geographic")}
+{self.subjects_to_xml(self.geographic_subject_local, self.geographic_subject_local_valueURI, "geographic")}
   </subject>
   <subject>
-  {self.subjects_to_xml(self.event_subject, self.event_subject_valueURI, "topic")}
+{self.subjects_to_xml(self.event_subject, self.event_subject_valueURI, "topic")}
   </subject>
   <subject>
-    {self.subjects_to_xml(self.chronological_subject, "", "temporal")}
+{self.subjects_to_xml(self.chronological_subject, "", "temporal")}
   </subject>
 {self.subjects_to_xml(self.aat_type, self.aat_type_valueURI, 'genre authority="aat"', "  ")}
-  <genre authority="cco">{self.cco_description}</genre>
-  <genre authority="dct" valueURI="{self.dcmi_type_valueURI}">{self.dcmi_type}</genre>
-  <typeOfResource>{self.type_of_resource}</typeOfResource>
-  <accessCondition type="use and reproduction">{self.rights_management}</accessCondition>
-  <genre authority="imt">{self.imt_type}</genre>
+  <genre authority="cco">{escape(self.cco_description)}</genre>
+  <genre authority="dct" valueURI="{escape(self.dcmi_type_valueURI)}">{escape(self.dcmi_type)}</genre>
+  <typeOfResource>{escape(self.type_of_resource)}</typeOfResource>
+  <accessCondition type="use and reproduction">{escape(self.rights_management)}</accessCondition>
+  <genre authority="imt">{escape(self.imt_type)}</genre>
   <recordInfo>
-    <recordCreationDate encoding="iso8601">{self.date_created}</recordCreationDate>
-    <recordChangeDate encoding="iso8601">{self.date_modified}</recordChangeDate>
+    <recordCreationDate encoding="iso8601">{escape(self.date_created)}</recordCreationDate>
+    <recordChangeDate encoding="iso8601">{escape(self.date_modified)}</recordChangeDate>
   </recordInfo>
   <physicalDescription>
     {'''
-    '''.join([f"<extent>{extent.strip()}</extent>" for extent in self.extent.split(";")])}
-    {f"<digitalOrigin>{self.digital_origin}</digitalOrigin>" if self.digital_origin else ""}
+    '''.join([f"<extent>{escape(extent.strip())}</extent>" for extent in self.extent.split(";")])}
+    {f"<digitalOrigin>{escape(self.digital_origin)}</digitalOrigin>" if self.digital_origin else ""}
     <reformattingQuality>access</reformattingQuality>
     <reformattingQuality>preservation</reformattingQuality>
-    <note type="image-manipulation">{self.image_manipulation}</note>
-    <note type="bits-per-sample">{self.bits_per_sample}</note>
-    <note type="samples-per-pixel">{self.samples_per_pixel}</note>
-    <note type="colorspace">{self.colorspace}</note>
-    <note type="resolution">{self.resolution}</note>
-    <note type="file-size">{self.file_size}</note>
-    <note type="height">{self.height}</note>
-    <note type="width">{self.width}</note>
+    <note type="image-manipulation">{escape(self.image_manipulation)}</note>
+    <note type="bits-per-sample">{escape(self.bits_per_sample)}</note>
+    <note type="samples-per-pixel">{escape(self.samples_per_pixel)}</note>
+    <note type="colorspace">{escape(self.colorspace)}</note>
+    <note type="resolution">{escape(self.resolution)}</note>
+    <note type="file-size">{escape(self.file_size)}</note>
+    <note type="height">{escape(self.height)}</note>
+    <note type="width">{escape(self.width)}</note>
   </physicalDescription>
-  <identifier type="local">{self.local_id}</identifier>
-  <identifier type="ark">{self.ark}</identifier>
-  <identifier type="avian-id">{self.avian_id}</identifier>
-  <identifier type="uid">{self.uid}</identifier>
-  <identifier type="project-number">{self.project_number}</identifier>
-  <identifier>{self.file_name}</identifier>
-  <identifier type="islandora">{self.pid}</identifier>
-  <note type="hardware/software">{self.hardware_software}</note>
+  <identifier type="local">{escape(self.local_id)}</identifier>
+  <identifier type="ark">{escape(self.ark)}</identifier>
+  <identifier type="avian-id">{escape(self.avian_id)}</identifier>
+  <identifier type="uid">{escape(self.uid)}</identifier>
+  <identifier type="project-number">{escape(self.project_number)}</identifier>
+  <identifier>{escape(self.file_name)}</identifier>
+  <identifier type="islandora">{escape(self.pid)}</identifier>
+  <note type="hardware/software">{escape(self.hardware_software)}</note>
 </mods>
 """
 
     def names_uris_to_xml(self, names, uris, name_type, role, authority="naf"):
         xml_names = []
-        for n, u in zip_longest(names.strip().split(";"), uris.strip().split(";"), fillvalue=""):
+        for n, u in zip_longest(
+            names.strip().split(";"), uris.strip().split(";"), fillvalue=""
+        ):
             xml_names.append(
-                f"""<name type="{name_type}" valueURI="{u.strip()}" authority="{authority}">
+                f"""<name type="{name_type.strip()}" valueURI="{escape(u.strip())}" authority="{escape(authority)}">
     <namePart>{n.strip()}</namePart>
     <role>
     <roleTerm type="text" authority="marcrelator">{role}</roleTerm>
@@ -309,18 +313,22 @@ class SpreadsheetMD:
     def subjects_to_xml(self, terms, uris, term_type, indent="    "):
         xml_terms = []
         term_type_end = term_type.split(" ")[0]
-        for t, u in zip_longest(terms.strip().split(";"), uris.strip().split(";"), fillvalue=""):
+        for t, u in zip_longest(
+            terms.strip().split(";"), uris.strip().split(";"), fillvalue=""
+        ):
             xml_terms.append(
-                f'{indent}<{term_type} valueURI="{u.strip()}">{t}</{term_type_end}>'
+                f'{indent}<{term_type} valueURI="{u.strip()}">{t.strip()}</{term_type_end}>'
             )
 
         return "\n".join(xml_terms)
 
     def subject_names_to_xml(self, names, uris, name_type):
         xml_names = []
-        for n, u in zip_longest(names.strip().split(";"), uris.strip().split(";"), fillvalue=""):
+        for n, u in zip_longest(
+            names.strip().split(";"), uris.strip().split(";"), fillvalue=""
+        ):
             xml_names.append(
-                f'<name valueURI="{u.strip()}" type="{name_type}">\n      <namePart>{n.strip()}</namePart>\n    </name>'
+                f'<name valueURI="{escape(u.strip())}" type="{name_type}">\n      <namePart>{escape(n.strip())}</namePart>\n    </name>'
             )
 
         return "\n    ".join(xml_names)
