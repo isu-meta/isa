@@ -1,22 +1,39 @@
 import csv
 from pathlib import Path
 
-from lxml.etree import parse
+from lxml.etree import parse, XMLSyntaxError
 
 
-def load_xml(xml_dir):
+def load_xml(xml_dir, alpha=False):
     xmls = []
-    for x in Path(xml_dir).glob("*.xml"):
-        xmls.append(parse(str(x)))
+    for x in sort_xml_paths(Path(xml_dir).glob("*.xml"), alpha):
+        try:
+            xmls.append(parse(str(x)))
+        except XMLSyntaxError:
+            print(f"Couldn't parse {x}! Skipping! Sorry!")
 
     return xmls
+
+
+def sort_xml_paths(xmls, alpha=False):
+    if alpha:
+        return sorted(xmls)
+    else:
+        to_sort = [
+            (int(x.stem.split("_")[-1]), x)
+            if x.stem.split("_")[-1].isdigit()
+            else (0, x)
+            for x
+            in xmls
+        ]
+        return [x[1] for x in sorted(to_sort)]
 
 
 def xml_to_csv(mds):
     return [XmlMD(md) for md in mds]
 
 
-def save_csv(mds, output_path, delimiter=",", newline="\n"):
+def save_csv(mds, output_path, reorder=True):
     headers = [
         "pid",
         "title",
@@ -107,13 +124,34 @@ def save_csv(mds, output_path, delimiter=",", newline="\n"):
         "width",
         "digital_origin",
     ]
+
+    rows = [md.to_row() for md in mds]
+
+
     
-    csv_md = [headers] + [md.to_row() for md in mds]
-    #csv_text = newline.join([delimiter.join(row) for row in csv_md])
+    csv_md = [headers] + (reorder_compound_objects(rows) if reorder else rows)
 
     with open(output_path, "w", encoding="utf8", newline="") as fh:
         writer = csv.writer(fh)
         writer.writerows(csv_md)
+
+
+def reorder_compound_objects(rows):
+    last_compound = 0
+    for i, row in enumerate(rows):
+        # If there's no file name
+        if not(row[66]):
+            local_id = row[65]
+            parent_row = row
+            for r in rows[last_compound:i]:
+                if r[65] == local_id or r[66].split(".")[0] == local_id:
+                    rows = rows[:rows.index(r)] + [parent_row] + rows[rows.index(r):i] + rows[i + 1:]
+                    break
+
+            last_compound = i
+
+    return rows
+
 
 
 class XmlMD:
