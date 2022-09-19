@@ -61,6 +61,7 @@ class SpreadsheetMD:
             "corporate_contributor_valueURI", ""
         )
         self.description = md.get("description", "")
+        self.disclaimer = md.get("disclaimer", "")
         self.table_of_contents = md.get("table_of_contents", "")
         self.annotation = md.get("annotation", "")
         self.url = md.get("url", "")
@@ -208,6 +209,7 @@ class SpreadsheetMD:
     <frequency authority="marcfrequency">{escape(self.frequency)}</frequency>
   </originInfo>
   <abstract>{escape(self.description)}</abstract>
+  <note type="Disclaimer">{escape(self.disclaimer)}</note>
   <note type="annotation">{escape(self.annotation)}</note>
   <tableOfContents>{escape(self.table_of_contents)}</tableOfContents>
   <language>

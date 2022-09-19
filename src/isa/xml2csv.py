@@ -18,15 +18,15 @@ def load_xml(xml_dir, alpha=False):
 def sort_xml_paths(xmls, alpha=False):
     if alpha:
         return sorted(xmls)
-    else:
-        to_sort = [
-            (int(x.stem.split("_")[-1]), x)
-            if x.stem.split("_")[-1].isdigit()
-            else (0, x)
-            for x
-            in xmls
-        ]
-        return [x[1] for x in sorted(to_sort)]
+
+    to_sort = [
+        (int(x.stem.split("_")[-1]), x)
+        if x.stem.split("_")[-1].isdigit()
+        else (0, x)
+        for x
+        in xmls
+    ]
+    return [x[1] for x in sorted(to_sort)]
 
 
 def xml_to_csv(mds):
@@ -59,6 +59,7 @@ def save_csv(mds, output_path, reorder=True):
         "corporate_contributor",
         "corporate_contributor_valueURI",
         "description",
+        "disclaimer",
         "table_of_contents",
         "annotation",
         "url",
@@ -141,10 +142,10 @@ def reorder_compound_objects(rows):
     for i, row in enumerate(rows):
         # If there's no file name
         if not(row[66]):
-            local_id = row[65]
+            local_id = row[65].strip()
             parent_row = row
             for r in rows[last_compound:i]:
-                if r[65] == local_id or r[66].split(".")[0] == local_id:
+                if local_id in (r[65].strip(), r[66].split(".")[0].strip()):
                     rows = rows[:rows.index(r)] + [parent_row] + rows[rows.index(r):i] + rows[i + 1:]
                     break
 
@@ -261,6 +262,10 @@ class XmlMD:
             )
         )
         self.description = md.xpath("string(/mods:mods/mods:abstract)", namespaces=ns)
+        self.disclaimer = md.xpath(
+            "string(/mods:mods/mods:note[@type='Disclaimer'])",
+            namespaces=ns,
+        )
         self.table_of_contents = md.xpath("string(/mods:mods/mods:tableOfContents)", namespaces=ns)
         self.annotation = md.xpath(
             "string(/mods:mods/mods:note[@type='annotation'])", namespaces=ns
