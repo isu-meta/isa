@@ -88,6 +88,8 @@ def save_csv(mds, output_path, reorder=True):
         "event_subject",
         "event_subject_valueURI",
         "extent",
+        "aat_genre",
+        "aat_genre_valueURI",
         "aat_type",
         "aat_type_valueURI",
         "dcmi_type",
@@ -380,6 +382,12 @@ class XmlMD:
         self.extent = "; ".join(
             md.xpath("/mods:mods/mods:physicalDescription/mods:extent/text()", namespaces=ns)
         )
+        self.aat_genre = "; ".join(
+            md.xpath("/mods:mods/mods:genre[@authority='aat' and @type='genre']/text()", namespaces=ns)
+        )
+        self.aat_genre_valueURI = "; ".join(
+            md.xpath("/mods:mods/mods:genre[@authority='aat' and @type='genre']/@valueURI", namespaces=ns)
+        )
         self.aat_type = "; ".join(
             md.xpath("/mods:mods/mods:genre[@authority='aat']/text()", namespaces=ns)
         )
@@ -511,6 +519,7 @@ class XmlMD:
                 self.corporate_contributor,
                 self.corporate_contributor_valueURI,
                 self.description,
+                self.disclaimer,
                 self.table_of_contents,
                 self.annotation,
                 self.url,
@@ -539,6 +548,8 @@ class XmlMD:
                 self.event_subject,
                 self.event_subject_valueURI,
                 self.extent,
+                self.aat_genre,
+                self.aat_genre_valueURI,
                 self.aat_type,
                 self.aat_type_valueURI,
                 self.dcmi_type,
