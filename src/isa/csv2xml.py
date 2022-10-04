@@ -104,8 +104,10 @@ class SpreadsheetMD:
         self.event_subject_valueURI = md.get("event_subject_valueURI", "")
         self.chronological_subject = md.get("chronological_subject", "")
         self.extent = md.get("extent", "")
+        self.aat_genre = md.get("aat_genre", "")
         self.aat_type = md.get("aat_type", "")
         self.dcmi_type = md.get("dcmi_type", "")
+        self.aat_genre_valueURI = md.get("aat_genre_valueURI", "")
         self.aat_type_valueURI = md.get("aat_type_valueURI", "")
         self.dcmi_type_valueURI = md.get("dcmi_type_valueURI", "")
         self.type_of_resource = md.get("type_of_resource", "")
@@ -239,9 +241,6 @@ class SpreadsheetMD:
   <subject authority="naf">
 {self.subject_names_to_xml(self.corporate_name_subject, self.corporate_name_subject_valueURI, "corporate")}
   </subject>
-  <subject authority="fast">
-{self.subjects_to_xml(self.topical_subject_fast, self.topical_subject_fast_valueURI, "topic")}
-  </subject>
   <subject authority="lcsh">
 {self.subjects_to_xml(self.geographic_subject_lcsh, self.geographic_subject_lcsh_valueURI, "geographic")}
   </subject>
@@ -260,6 +259,7 @@ class SpreadsheetMD:
   <subject>
 {self.subjects_to_xml(self.chronological_subject, "", "temporal")}
   </subject>
+{self.subjects_to_xml(self.aat_genre, self.aat_genre_valueURI, 'genre authority="aat" type="genre"', "  ")}
 {self.subjects_to_xml(self.aat_type, self.aat_type_valueURI, 'genre authority="aat"', "  ")}
   <genre authority="cco">{escape(self.cco_description)}</genre>
   <genre authority="dct" valueURI="{escape(self.dcmi_type_valueURI)}">{escape(self.dcmi_type)}</genre>
@@ -330,7 +330,7 @@ class SpreadsheetMD:
             names.strip().split(";"), uris.strip().split(";"), fillvalue=""
         ):
             xml_names.append(
-                f'<name valueURI="{escape(u.strip())}" type="{name_type}">\n      <namePart>{escape(n.strip())}</namePart>\n    </name>'
+                f'    <name valueURI="{escape(u.strip())}" type="{name_type}">\n      <namePart>{escape(n.strip())}</namePart>\n    </name>'
             )
 
         return "\n    ".join(xml_names)
