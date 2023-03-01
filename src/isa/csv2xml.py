@@ -46,6 +46,9 @@ class SpreadsheetMD:
         self.box = md.get("box", "")
         self.folder = md.get("folder", "")
         self.contributing_institution = md.get("contributing_institution", "")
+        self.contributing_institution_valueURI = md.get(
+            "contributing_institution_valueURI", ""
+        )
         self.personal_creator = md.get("personal_creator", "")
         self.corporate_creator = md.get("corporate_creator", "")
         self.interviewee = md.get("interviewee", "")
@@ -114,10 +117,12 @@ class SpreadsheetMD:
         self.imt_type = md.get("imt_type", "")
         self.cco_description = md.get("cco_description", "")
         self.rights_management = md.get("rights_management", "")
+        self.rights_management_valueURI = md.get("rights_management_valueURI", "")
         self.date_original = md.get("date_original", "")
         self.date_digital = md.get("date_digital", "")
         self.place_of_origin = md.get("location_interview", "")
         self.publisher = md.get("publisher", "")
+        self.publisher_valueURI = md.get("publisher_valueURI", "")
         self.ark = md.get("ark", "")
         self.local_id = md.get("local_id", "")
         self.avian_id = md.get("avian_id", "")
@@ -132,6 +137,8 @@ class SpreadsheetMD:
         self.frequency = md.get("frequency", "")
         self.digital_collection = md.get("digital_collection", "")
         self.digital_collection_ark = md.get("digital_collection_ark", "")
+        self.related_exhibit = md.get("related_exhibit", "")
+        self.related_exhibit_url = md.get("related_exhibit_url", "")
         self.hardware_software = md.get("hardware_software", "")
         self.reformatting_quality = md.get("reformatting_quality", "")
         self.digital_origin = md.get("digital_origin", "")
@@ -146,7 +153,7 @@ class SpreadsheetMD:
 
     def to_xml(self):
         return f"""<?xml version='1.0' encoding='UTF-8'?>
-<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd" version="3.6">
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-8.xsd" version="3.8">
   <titleInfo>
     <title>{escape(self.title)}</title>
   </titleInfo>
@@ -186,12 +193,13 @@ class SpreadsheetMD:
     </titleInfo>
     <identifier type="ark">{escape(self.digital_collection_ark)}</identifier>
   </relatedItem>
-  <name type="corporate" authority="naf">
-    <namePart>{escape(self.contributing_institution)}</namePart>
-    <role>
-      <roleTerm authority="marcrelator" type="text">curator</roleTerm>
-    </role>
-  </name>
+  <relatedItem type="isReferencedBy">
+    <titleInfo>
+      <title>{escape(self.related_exhibit)}</title>
+    </titleInfo>
+    <identifier type="ark">{escape(self.related_exhibit_url)}</identifier>
+  </relatedItem>
+  {self.names_uris_to_xml(self.contributing_institution, self.contributing_institution_valueURI, "corporate", "curator")}
   {self.names_uris_to_xml(self.personal_creator, self.personal_creator_valueURI, "personal", "creator")}
   {self.names_uris_to_xml(self.corporate_creator, self.corporate_creator_valueURI, "corporate", "creator")}
   {self.names_uris_to_xml(self.interviewee, self.interviewee_valueURI, "personal", "interviewee")}
@@ -229,9 +237,6 @@ class SpreadsheetMD:
   <subject authority="local">
 {self.subjects_to_xml(self.topical_subject_local, self.topical_subject_local_valueURI, "topic")}
   </subject>
-  <subject authority="local">
-{self.subjects_to_xml(self.topical_subject_local, self.topical_subject_local_valueURI, "topic")}
-  </subject>
   <subject authority="lcsh">
 {self.subjects_to_xml(self.birds_subject, self.birds_subject_valueURI, "topic")}
   </subject>
@@ -264,7 +269,7 @@ class SpreadsheetMD:
   <genre authority="cco">{escape(self.cco_description)}</genre>
   <genre authority="dct" valueURI="{escape(self.dcmi_type_valueURI)}">{escape(self.dcmi_type)}</genre>
   <typeOfResource>{escape(self.type_of_resource)}</typeOfResource>
-  <accessCondition type="use and reproduction">{escape(self.rights_management)}</accessCondition>
+  <accessCondition type="use and reproduction" valueURI="{self.rights_management_valueURI}">{escape(self.rights_management)}</accessCondition>
   <genre authority="imt">{escape(self.imt_type)}</genre>
   <recordInfo>
     <recordCreationDate encoding="iso8601">{escape(self.date_created)}</recordCreationDate>

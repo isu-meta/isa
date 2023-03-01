@@ -20,11 +20,8 @@ def sort_xml_paths(xmls, alpha=False):
         return sorted(xmls)
 
     to_sort = [
-        (int(x.stem.split("_")[-1]), x)
-        if x.stem.split("_")[-1].isdigit()
-        else (0, x)
-        for x
-        in xmls
+        (int(x.stem.split("_")[-1]), x) if x.stem.split("_")[-1].isdigit() else (0, x)
+        for x in xmls
     ]
     return [x[1] for x in sorted(to_sort)]
 
@@ -46,6 +43,7 @@ def save_csv(mds, output_path, reorder=True):
         "box",
         "folder",
         "contributing_institution",
+        "contributing_institution_valueURI",
         "personal_creator",
         "personal_creator_valueURI",
         "corporate_creator",
@@ -59,7 +57,6 @@ def save_csv(mds, output_path, reorder=True):
         "corporate_contributor",
         "corporate_contributor_valueURI",
         "description",
-        "disclaimer",
         "table_of_contents",
         "annotation",
         "url",
@@ -78,6 +75,7 @@ def save_csv(mds, output_path, reorder=True):
         "geographic_subject_local_valueURI",
         "geographic_subject_geonames",
         "geographic_subject_geonames_valueURI",
+        "coordinates",
         "personal_name_subject",
         "personal_name_subject_valueURI",
         "corporate_name_subject",
@@ -88,20 +86,22 @@ def save_csv(mds, output_path, reorder=True):
         "event_subject",
         "event_subject_valueURI",
         "extent",
-        "aat_genre",
-        "aat_genre_valueURI",
         "aat_type",
         "aat_type_valueURI",
+        "aat_genre",
+        "aat_genre_valueURI",
         "dcmi_type",
         "dcmi_type_valueURI",
         "type_of_resource",
         "imt_type",
         "cco_description",
         "rights_management",
+        "rights_management_valueURI",
         "date_original",
         "date_digital",
         "location_interview",
         "publisher",
+        "publisher_valueURI",
         "ark",
         "local_id",
         "file_name",
@@ -116,7 +116,10 @@ def save_csv(mds, output_path, reorder=True):
         "frequency",
         "digital_collection",
         "digital_collection_ark",
+        "related_exhibit",
+        "related_exhibit_url",
         "hardware_software",
+        "disclaimer",
         "image_manipulation",
         "file_size",
         "resolution",
@@ -130,8 +133,6 @@ def save_csv(mds, output_path, reorder=True):
 
     rows = [md.to_row() for md in mds]
 
-
-    
     csv_md = [headers] + (reorder_compound_objects(rows) if reorder else rows)
 
     with open(output_path, "w", encoding="utf8", newline="") as fh:
@@ -143,12 +144,17 @@ def reorder_compound_objects(rows):
     last_compound = 0
     for i, row in enumerate(rows):
         # If there's no file name
-        if not(row[66]):
-            local_id = row[65].strip()
+        if not (row[70]):
+            local_id = row[69].strip()
             parent_row = row
             for r in rows[last_compound:i]:
-                if local_id in (r[65].strip(), r[66].split(".")[0].strip()):
-                    rows = rows[:rows.index(r)] + [parent_row] + rows[rows.index(r):i] + rows[i + 1:]
+                if local_id in (r[69].strip(), r[70].split(".")[0].strip()):
+                    rows = (
+                        rows[: rows.index(r)]
+                        + [parent_row]
+                        + rows[rows.index(r) : i]
+                        + rows[i + 1 :]
+                    )
                     break
 
             last_compound = i
@@ -156,13 +162,16 @@ def reorder_compound_objects(rows):
     return rows
 
 
-
 class XmlMD:
     def __init__(self, md):
         ns = {"mods": "http://www.loc.gov/mods/v3"}
 
-        self.pid = md.xpath("string(/mods:mods/mods:identifier[@type='islandora'])", namespaces=ns)
-        self.title = md.xpath("string(/mods:mods/mods:titleInfo/mods:title)", namespaces=ns)
+        self.pid = md.xpath(
+            "string(/mods:mods/mods:identifier[@type='islandora'])", namespaces=ns
+        )
+        self.title = md.xpath(
+            "string(/mods:mods/mods:titleInfo/mods:title)", namespaces=ns
+        )
         self.archival_call_number = md.xpath(
             "string(/mods:mods/mods:relatedItem[@type='original']/mods:identifier[@displayLabel='Call Number'])",
             namespaces=ns,
@@ -199,8 +208,12 @@ class XmlMD:
             "string(/mods:mods/mods:name/mods:namePart[following-sibling::mods:role/mods:roleTerm/text()='curator'])",
             namespaces=ns,
         )
+        self.contributing_institution_valueURI = md.xpath(
+            "string(/mods:mods/mods:name[mods:role/mods:roleTerm/text()='curator']/@valueURI)",
+            namespaces=ns,
+        )
         self.personal_creator = "; ".join(
-            md.xpath( 
+            md.xpath(
                 "/mods:mods/mods:name[@type='personal']/mods:namePart[following-sibling::mods:role/mods:roleTerm/text()='creator']/text()",
                 namespaces=ns,
             )
@@ -264,11 +277,9 @@ class XmlMD:
             )
         )
         self.description = md.xpath("string(/mods:mods/mods:abstract)", namespaces=ns)
-        self.disclaimer = md.xpath(
-            "string(/mods:mods/mods:note[@type='Disclaimer'])",
-            namespaces=ns,
+        self.table_of_contents = md.xpath(
+            "string(/mods:mods/mods:tableOfContents)", namespaces=ns
         )
-        self.table_of_contents = md.xpath("string(/mods:mods/mods:tableOfContents)", namespaces=ns)
         self.annotation = md.xpath(
             "string(/mods:mods/mods:note[@type='annotation'])", namespaces=ns
         )
@@ -277,15 +288,22 @@ class XmlMD:
             md.xpath("mods:language/mods:languageTerm/text()", namespaces=ns)
         )
         self.topical_subject_fast = "; ".join(
-            md.xpath("/mods:mods/mods:subject[@authority='fast']/mods:topic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[@authority='fast']/mods:topic/text()",
+                namespaces=ns,
+            )
         )
         self.topical_subject_fast_valueURI = "; ".join(
             md.xpath(
-                "/mods:mods/mods:subject[@authority='fast']/mods:topic/@valueURI", namespaces=ns
+                "/mods:mods/mods:subject[@authority='fast']/mods:topic/@valueURI",
+                namespaces=ns,
             )
         )
         self.geographic_subject_fast = "; ".join(
-            md.xpath("/mods:mods/mods:subject[@authority='fast']/mods:geographic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[@authority='fast']/mods:geographic/text()",
+                namespaces=ns,
+            )
         )
         self.geographic_subject_fast_valueURI = "; ".join(
             md.xpath(
@@ -294,23 +312,34 @@ class XmlMD:
             )
         )
         self.topical_subject_lcsh = "; ".join(
-            md.xpath("/mods:mods/mods:subject[@authority='lcsh']/mods:topic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[@authority='lcsh']/mods:topic/text()",
+                namespaces=ns,
+            )
         )
         self.topical_subject_lcsh_valueURI = "; ".join(
             md.xpath(
-                "/mods:mods/mods:subject[@authority='lcsh']/mods:topic/@valueURI", namespaces=ns
+                "/mods:mods/mods:subject[@authority='lcsh']/mods:topic/@valueURI",
+                namespaces=ns,
             )
         )
         self.topical_subject_local = "; ".join(
-            md.xpath("/mods:mods/mods:subject[@authority='local']/mods:topic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[@authority='local']/mods:topic/text()",
+                namespaces=ns,
+            )
         )
         self.topical_subject_local_valueURI = "; ".join(
             md.xpath(
-                "/mods:mods/mods:subject[@authority='local']/mods:topic/@valueURI", namespaces=ns
+                "/mods:mods/mods:subject[@authority='local']/mods:topic/@valueURI",
+                namespaces=ns,
             )
         )
         self.geographic_subject_lcsh = "; ".join(
-            md.xpath("/mods:mods/mods:subject[@authority='lcsh']/mods:geographic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[@authority='lcsh']/mods:geographic/text()",
+                namespaces=ns,
+            )
         )
         self.geographic_subject_lcsh_valueURI = "; ".join(
             md.xpath(
@@ -319,7 +348,10 @@ class XmlMD:
             )
         )
         self.geographic_subject_local = "; ".join(
-            md.xpath("/mods:mods/mods:subject[@authority='local']/mods:geographic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[@authority='local']/mods:geographic/text()",
+                namespaces=ns,
+            )
         )
         self.geographic_subject_local_valueURI = "; ".join(
             md.xpath(
@@ -329,12 +361,19 @@ class XmlMD:
         )
         self.geographic_subject_geonames = "; ".join(
             md.xpath(
-                "/mods:mods/mods:subject[@authority='geonames']/mods:geographic/text()", namespaces=ns
+                "/mods:mods/mods:subject[@authority='geonames']/mods:geographic/text()",
+                namespaces=ns,
             )
         )
         self.geographic_subject_geonames_valueURI = "; ".join(
             md.xpath(
                 "/mods:mods/mods:subject[@authority='geonames']/mods:geographic/@valueURI",
+                namespaces=ns,
+            )
+        )
+        self.coordinates = "; ".join(
+            md.xpath(
+                "/mods:mods/mods:subject/mods:geographic/mods:coordinates/text()",
                 namespaces=ns,
             )
         )
@@ -363,48 +402,84 @@ class XmlMD:
             )
         )
         self.birds_subject = "; ".join(
-            md.xpath("/mods:mods/mods:subject[@authority='gbif']/mods:topic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[@authority='gbif']/mods:topic/text()",
+                namespaces=ns,
+            )
         )
         self.birds_subject_valueURI = "; ".join(
             md.xpath(
-                "/mods:mods/mods:subject[@authority='gbif']/mods:topic/@valueURI", namespaces=ns
+                "/mods:mods/mods:subject[@authority='gbif']/mods:topic/@valueURI",
+                namespaces=ns,
             )
         )
         self.chronological_subject = "; ".join(
-            md.xpath("/mods:mods/mods:subject[not(@authority)]/mods:temporal/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[not(@authority)]/mods:temporal/text()",
+                namespaces=ns,
+            )
         )
         self.event_subject = "; ".join(
-            md.xpath("/mods:mods/mods:subject[not(@authority)]/mods:topic/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[not(@authority)]/mods:topic/text()",
+                namespaces=ns,
+            )
         )
         self.event_subject_valueURI = "; ".join(
-            md.xpath("/mods:mods/mods:subject[not(@authority)]/mods:topic/@valueURI", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:subject[not(@authority)]/mods:topic/@valueURI",
+                namespaces=ns,
+            )
         )
         self.extent = "; ".join(
-            md.xpath("/mods:mods/mods:physicalDescription/mods:extent/text()", namespaces=ns)
-        )
-        self.aat_genre = "; ".join(
-            md.xpath("/mods:mods/mods:genre[@authority='aat' and @type='genre']/text()", namespaces=ns)
-        )
-        self.aat_genre_valueURI = "; ".join(
-            md.xpath("/mods:mods/mods:genre[@authority='aat' and @type='genre']/@valueURI", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:physicalDescription/mods:extent/text()", namespaces=ns
+            )
         )
         self.aat_type = "; ".join(
-            md.xpath("/mods:mods/mods:genre[@authority='aat']/text()", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:genre[@authority='aat' and not(@type='genre')]/text()",
+                namespaces=ns,
+            )
         )
         self.aat_type_valueURI = "; ".join(
-            md.xpath("/mods:mods/mods:genre[@authority='aat']/@valueURI", namespaces=ns)
+            md.xpath(
+                "/mods:mods/mods:genre[@authority='aat' and not(@type='genre')]/@valueURI",
+                namespaces=ns,
+            )
         )
-        self.dcmi_type = md.xpath("string(/mods:mods/mods:genre[@authority='dct'])", namespaces=ns)
+        self.aat_genre = "; ".join(
+            md.xpath(
+                "/mods:mods/mods:genre[@authority='aat' and @type='genre']/text()",
+                namespaces=ns,
+            )
+        )
+        self.dcmi_type = md.xpath(
+            "string(/mods:mods/mods:genre[@authority='dct'])", namespaces=ns
+        )
+        self.aat_genre_valueURI = "; ".join(
+            md.xpath(
+                "/mods:mods/mods:genre[@authority='aat' and @type='genre']/@valueURI",
+                namespaces=ns,
+            )
+        )
         self.dcmi_type_valueURI = md.xpath(
             "string(/mods:mods/mods:genre[@authority='dct']/@valueURI)", namespaces=ns
         )
-        self.type_of_resource = md.xpath("string(/mods:mods/mods:typeOfResource)", namespaces=ns)
-        self.imt_type = md.xpath("string(/mods:mods/mods:genre[@authority='imt'])", namespaces=ns)
+        self.type_of_resource = md.xpath(
+            "string(/mods:mods/mods:typeOfResource)", namespaces=ns
+        )
+        self.imt_type = md.xpath(
+            "string(/mods:mods/mods:genre[@authority='imt'])", namespaces=ns
+        )
         self.cco_description = md.xpath(
             "string(/mods:mods/mods:genre[@authority='cco'])", namespaces=ns
         )
         self.rights_management = md.xpath(
             "string(/mods:mods/mods:accessCondition)", namespaces=ns
+        )
+        self.rights_management_valueURI = md.xpath(
+            "string(mods:mods/mods:accessCondition/@valueURI)", namespaces=ns
         )
         self.date_original = md.xpath(
             "string(/mods:mods/mods:originInfo/mods:dateCreated)", namespaces=ns
@@ -413,17 +488,27 @@ class XmlMD:
             "string(/mods:mods/mods:originInfo/mods:dateCaptured)", namespaces=ns
         )
         self.location_interview = md.xpath(
-            "string(/mods:mods/mods:originInfo/mods:place/mods:placeTerm)", namespaces=ns
+            "string(/mods:mods/mods:originInfo/mods:place/mods:placeTerm)",
+            namespaces=ns,
         )
         self.publisher = md.xpath(
             "string(/mods:mods/mods:originInfo/mods:publisher)", namespaces=ns
         )
-        self.ark = md.xpath("string(/mods:mods/mods:identifier[@type='ark'])", namespaces=ns)
+        self.publisher_valueURI = md.xpath(
+            "string(/mods:mods/mods:originInfo/mods:publisher/@valueURI)", namespaces=ns
+        )
+        self.ark = md.xpath(
+            "string(/mods:mods/mods:identifier[@type='ark'])", namespaces=ns
+        )
         self.local_id = md.xpath(
             "string(/mods:mods/mods:identifier[@type='local'])", namespaces=ns
         )
-        self.file_name = md.xpath("string(/mods:mods/mods:identifier[not(@*)])", namespaces=ns)
-        self.uid = md.xpath("string(/mods:mods/mods:identifier[@type='uid'])", namespaces=ns)
+        self.file_name = md.xpath(
+            "string(/mods:mods/mods:identifier[not(@*)])", namespaces=ns
+        )
+        self.uid = md.xpath(
+            "string(/mods:mods/mods:identifier[@type='uid'])", namespaces=ns
+        )
         self.avian_id = md.xpath(
             "string(/mods:mods/mods:identifier[@type='avian-id'])", namespaces=ns
         )
@@ -440,10 +525,12 @@ class XmlMD:
             "string(/mods:mods/mods:originInfo/mods:issuance)", namespaces=ns
         )
         self.issuance_start = md.xpath(
-            "string(/mods:mods/mods:originInfo/mods:dateIssued[@point='start'])", namespaces=ns
+            "string(/mods:mods/mods:originInfo/mods:dateIssued[@point='start'])",
+            namespaces=ns,
         )
         self.issuance_end = md.xpath(
-            "string(/mods:mods/mods:originInfo/mods:dateIssued[@point='end'])", namespaces=ns
+            "string(/mods:mods/mods:originInfo/mods:dateIssued[@point='end'])",
+            namespaces=ns,
         )
         self.frequency = md.xpath(
             "string(/mods:mods/mods:originInfo/mods:frequency)", namespaces=ns
@@ -453,11 +540,23 @@ class XmlMD:
             namespaces=ns,
         )
         self.digital_collection_ark = md.xpath(
-            "string(/mods:mods/mods:relatedItem[@type='host']/mods:identifier[@type='ark'])", 
+            "string(/mods:mods/mods:relatedItem[@type='host']/mods:identifier[@type='ark'])",
+            namespaces=ns,
+        )
+        self.related_exhibit = md.xpath(
+            "string(/mods:mods/mods:relatedItem[@type = 'isReferencedBy']/mods:titleInfo/mods:title)",
+            namespaces=ns,
+        )
+        self.related_exhibit_url = md.xpath(
+            "string(/mods:mods/mods:relatedItem[@type = 'isReferencedBy']/mods:identifier)",
             namespaces=ns,
         )
         self.hardware_software = md.xpath(
             "string(/mods:mods/mods:note[@type='hardware/software'])", namespaces=ns
+        )
+        self.disclaimer = md.xpath(
+            "string(/mods:mods/mods:note[@type='Disclaimer'])",
+            namespaces=ns,
         )
         self.image_manipulation = md.xpath(
             "string(/mods:mods/mods:physicalDescription/mods:note[@type='image-manipulation'])",
@@ -484,106 +583,112 @@ class XmlMD:
             namespaces=ns,
         )
         self.height = md.xpath(
-            "string(/mods:mods/mods:physicalDescription/mods:note[@type='height'])", namespaces=ns
+            "string(/mods:mods/mods:physicalDescription/mods:note[@type='height'])",
+            namespaces=ns,
         )
         self.width = md.xpath(
-            "string(/mods:mods/mods:physicalDescription/mods:note[@type='width'])", namespaces=ns
+            "string(/mods:mods/mods:physicalDescription/mods:note[@type='width'])",
+            namespaces=ns,
         )
         self.digital_origin = md.xpath(
-            "string(/mods:mods/mods:physicalDescription/mods:digitalOrigin)", namespaces=ns
+            "string(/mods:mods/mods:physicalDescription/mods:digitalOrigin)",
+            namespaces=ns,
         )
 
     def to_row(self):
         return [
-                self.pid,
-                self.title,
-                self.archival_call_number,
-                self.archival_collection,
-                self.finding_aid_ark,
-                self.physical_location,
-                self.archival_series_title,
-                self.folder_title,
-                self.box,
-                self.folder,
-                self.contributing_institution,
-                self.personal_creator,
-                self.personal_creator_valueURI,
-                self.corporate_creator,
-                self.corporate_creator_valueURI,
-                self.interviewee,
-                self.interviewee_valueURI,
-                self.interviewer,
-                self.interviewer_valueURI,
-                self.personal_contributor,
-                self.personal_contributor_valueURI,
-                self.corporate_contributor,
-                self.corporate_contributor_valueURI,
-                self.description,
-                self.disclaimer,
-                self.table_of_contents,
-                self.annotation,
-                self.url,
-                self.language,
-                self.topical_subject_fast,
-                self.topical_subject_fast_valueURI,
-                self.geographic_subject_fast,
-                self.geographic_subject_fast_valueURI,
-                self.topical_subject_lcsh,
-                self.topical_subject_lcsh_valueURI,
-                self.topical_subject_local,
-                self.topical_subject_local_valueURI,
-                self.geographic_subject_lcsh,
-                self.geographic_subject_lcsh_valueURI,
-                self.geographic_subject_local,
-                self.geographic_subject_local_valueURI,
-                self.geographic_subject_geonames,
-                self.geographic_subject_geonames_valueURI,
-                self.personal_name_subject,
-                self.personal_name_subject_valueURI,
-                self.corporate_name_subject,
-                self.corporate_name_subject_valueURI,
-                self.birds_subject,
-                self.birds_subject_valueURI,
-                self.chronological_subject,
-                self.event_subject,
-                self.event_subject_valueURI,
-                self.extent,
-                self.aat_genre,
-                self.aat_genre_valueURI,
-                self.aat_type,
-                self.aat_type_valueURI,
-                self.dcmi_type,
-                self.dcmi_type_valueURI,
-                self.type_of_resource,
-                self.imt_type,
-                self.cco_description,
-                self.rights_management,
-                self.date_original,
-                self.date_digital,
-                self.location_interview,
-                self.publisher,
-                self.ark,
-                self.local_id,
-                self.file_name,
-                self.uid,
-                self.avian_id,
-                self.project_number,
-                self.date_created,
-                self.date_modified,
-                self.issuance,
-                self.issuance_start,
-                self.issuance_end,
-                self.frequency,
-                self.digital_collection,
-                self.digital_collection_ark,
-                self.hardware_software,
-                self.image_manipulation,
-                self.file_size,
-                self.resolution,
-                self.colorspace,
-                self.bits_per_sample,
-                self.samples_per_pixel,
-                self.height,
-                self.width,
-                self.digital_origin,
-            ]
+            self.pid,
+            self.title,
+            self.archival_call_number,
+            self.archival_collection,
+            self.finding_aid_ark,
+            self.physical_location,
+            self.archival_series_title,
+            self.folder_title,
+            self.box,
+            self.folder,
+            self.contributing_institution,
+            self.contributing_institution_valueURI,
+            self.personal_creator,
+            self.personal_creator_valueURI,
+            self.corporate_creator,
+            self.corporate_creator_valueURI,
+            self.interviewee,
+            self.interviewee_valueURI,
+            self.interviewer,
+            self.interviewer_valueURI,
+            self.personal_contributor,
+            self.personal_contributor_valueURI,
+            self.corporate_contributor,
+            self.corporate_contributor_valueURI,
+            self.description,
+            self.table_of_contents,
+            self.annotation,
+            self.url,
+            self.language,
+            self.topical_subject_fast,
+            self.topical_subject_fast_valueURI,
+            self.geographic_subject_fast,
+            self.geographic_subject_fast_valueURI,
+            self.topical_subject_lcsh,
+            self.topical_subject_lcsh_valueURI,
+            self.topical_subject_local,
+            self.topical_subject_local_valueURI,
+            self.geographic_subject_lcsh,
+            self.geographic_subject_lcsh_valueURI,
+            self.geographic_subject_local,
+            self.geographic_subject_local_valueURI,
+            self.geographic_subject_geonames,
+            self.geographic_subject_geonames_valueURI,
+            self.coordinates,
+            self.personal_name_subject,
+            self.personal_name_subject_valueURI,
+            self.corporate_name_subject,
+            self.corporate_name_subject_valueURI,
+            self.birds_subject,
+            self.birds_subject_valueURI,
+            self.chronological_subject,
+            self.event_subject,
+            self.event_subject_valueURI,
+            self.extent,
+            self.aat_type,
+            self.aat_type_valueURI,
+            self.aat_genre,
+            self.aat_genre_valueURI,
+            self.dcmi_type,
+            self.dcmi_type_valueURI,
+            self.type_of_resource,
+            self.imt_type,
+            self.cco_description,
+            self.rights_management,
+            self.rights_management_valueURI,
+            self.date_original,
+            self.date_digital,
+            self.location_interview,
+            self.publisher,
+            self.publisher_valueURI,
+            self.ark,
+            self.local_id,
+            self.file_name,
+            self.uid,
+            self.avian_id,
+            self.project_number,
+            self.date_created,
+            self.date_modified,
+            self.issuance,
+            self.issuance_start,
+            self.issuance_end,
+            self.frequency,
+            self.digital_collection,
+            self.digital_collection_ark,
+            self.hardware_software,
+            self.image_manipulation,
+            self.file_size,
+            self.resolution,
+            self.colorspace,
+            self.bits_per_sample,
+            self.samples_per_pixel,
+            self.height,
+            self.width,
+            self.digital_origin,
+        ]
