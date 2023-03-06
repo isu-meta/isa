@@ -76,6 +76,7 @@ class SpreadsheetMD:
         self.geographic_subject_fast = md.get("geographic_subject_fast", "")
         self.geographic_subject_local = md.get("geographic_subject_local", "")
         self.geographic_subject_geonames = md.get("geographic_subject_geonames", "")
+        self.coordinates = md.get("coordinates", "")
         self.personal_name_subject = md.get("personal_name_subject", "")
         self.corporate_name_subject = md.get("corporate_name_subject", "")
         self.birds_subject = md.get("birds_subject", "")
@@ -246,18 +247,10 @@ class SpreadsheetMD:
   <subject authority="naf">
 {self.subject_names_to_xml(self.corporate_name_subject, self.corporate_name_subject_valueURI, "corporate")}
   </subject>
-  <subject authority="lcsh">
-{self.subjects_to_xml(self.geographic_subject_lcsh, self.geographic_subject_lcsh_valueURI, "geographic")}
-  </subject>
-  <subject authority="fast">
-{self.subjects_to_xml(self.geographic_subject_fast, self.geographic_subject_fast_valueURI, "geographic")}
-  </subject>
-  <subject authority="geonames">
-{self.subjects_to_xml(self.geographic_subject_geonames, self.geographic_subject_geonames_valueURI, "geographic")}
-  </subject>
-  <subject authority="local">
-{self.subjects_to_xml(self.geographic_subject_local, self.geographic_subject_local_valueURI, "geographic")}
-  </subject>
+{self.geographic_to_xml(self.geographic_subject_lcsh, self.geographic_subject_lcsh_valueURI, self.coordinates, "lcsh")}
+{self.geographic_to_xml(self.geographic_subject_fast, self.geographic_subject_fast_valueURI, self.coordinates, "fast")}
+{self.geographic_to_xml(self.geographic_subject_geonames, self.geographic_subject_geonames_valueURI, self.coordinates, "geonames")}
+{self.geographic_to_xml(self.geographic_subject_local, self.geographic_subject_local_valueURI, self.coordinates, "local")}
   <subject>
 {self.subjects_to_xml(self.event_subject, self.event_subject_valueURI, "topic")}
   </subject>
@@ -300,6 +293,29 @@ class SpreadsheetMD:
   <note type="hardware/software">{escape(self.hardware_software)}</note>
 </mods>
 """
+
+    def geographic_to_xml(self, terms, uris, coordinates, authority):
+        xml_terms = []
+        for t, u, c in zip_longest(
+            terms.strip().split(";"),
+            uris.strip().split(";"),
+            coordinates.strip().split(";"),
+            fillvalue="",
+        ):
+            if t == "":
+                return ""
+            else:
+                xml_terms.append(
+                    f"""  <subject authority="{authority}">
+    <geographic valueURI="{u.strip()}">{t.strip()}</geographic>
+    <cartographics>
+      <projection>WGS84</projection>
+      <coordinates>{c.strip()}</coordinates>
+    </cartographics>
+  </subject>"""
+                )
+
+        return "\n".join(xml_terms)
 
     def names_uris_to_xml(self, names, uris, name_type, role, authority="naf"):
         xml_names = []
