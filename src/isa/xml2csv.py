@@ -475,11 +475,11 @@ class XmlMD:
         self.cco_description = md.xpath(
             "string(/mods:mods/mods:genre[@authority='cco'])", namespaces=ns
         )
-        self.rights_management = md.xpath(
-            "string(/mods:mods/mods:accessCondition)", namespaces=ns
+        self.rights_management = "; ".join(
+            md.xpath("/mods:mods/mods:accessCondition", namespaces=ns)
         )
-        self.rights_management_valueURI = md.xpath(
-            "string(mods:mods/mods:accessCondition/@valueURI)", namespaces=ns
+        self.rights_management_valueURI = "; ".join(
+            md.xpath("mods:mods/mods:accessCondition/@valueURI", namespaces=ns)
         )
         self.date_original = md.xpath(
             "string(/mods:mods/mods:originInfo/mods:dateCreated)", namespaces=ns

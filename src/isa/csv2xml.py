@@ -269,7 +269,7 @@ class SpreadsheetMD:
   <genre authority="cco">{escape(self.cco_description)}</genre>
   <genre authority="dct" valueURI="{escape(self.dcmi_type_valueURI)}">{escape(self.dcmi_type)}</genre>
   <typeOfResource>{escape(self.type_of_resource)}</typeOfResource>
-  <accessCondition type="use and reproduction" valueURI="{self.rights_management_valueURI}">{escape(self.rights_management)}</accessCondition>
+ {self.rights_to_xml(self.rights_management, self.rights_management_valueURI, "  ")}
   <genre authority="imt">{escape(self.imt_type)}</genre>
   <recordInfo>
     <recordCreationDate encoding="iso8601">{escape(self.date_created)}</recordCreationDate>
@@ -316,6 +316,17 @@ class SpreadsheetMD:
             )
 
         return "\n".join(xml_names)
+
+    def rights_to_xml(self, rights, uris, indent):
+        xml_rights = []
+        for r, u in zip_longest(
+            rights.strip().split(";"), uris.strip().split(";"), fillvalue=""
+        ):
+            xml_rights.append(
+                f'{indent}<accessCondition type="use and reproduction" valueURI="{escape(u)}">{escape(r)}</accessCondition>'
+            )
+
+        return "\n".join(xml_rights)
 
     def subjects_to_xml(self, terms, uris, term_type, indent="    "):
         xml_terms = []
