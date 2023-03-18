@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+import re
 
 from lxml.etree import parse, XMLSyntaxError
 
@@ -30,7 +31,7 @@ def xml_to_csv(mds):
     return [XmlMD(md) for md in mds]
 
 
-def save_csv(mds, output_path, reorder=True):
+def save_csv(mds, output_path, reorder=True, new=False):
     headers = [
         "pid",
         "title",
@@ -133,14 +134,30 @@ def save_csv(mds, output_path, reorder=True):
 
     rows = [md.to_row() for md in mds]
 
-    csv_md = [headers] + (reorder_compound_objects(rows) if reorder else rows)
+    csv_md = [headers] + (reorder_compound_objects(rows, new) if reorder else rows)
 
     with open(output_path, "w", encoding="utf8", newline="") as fh:
         writer = csv.writer(fh)
         writer.writerows(csv_md)
 
 
-def reorder_compound_objects(rows):
+def reorder_compound_objects(rows, new=False):
+    if new:
+        fixed = []
+        last_non_page_index = 0
+        page_pattern = re.compile(
+            r"^([Ff]ront|[Bb]ack|[Cc]over|[Pp]age \d+|[Pp]g?\.? \d+)$"
+        )
+
+        for idx, row in enumerate(rows):
+            if page_pattern.match(row[0]):
+                fixed.append(row)
+            else:
+                fixed.insert(last_non_page_index + 1, row)
+                last_non_page_index = idx
+
+        return fixed
+
     last_compound = 0
     for i, row in enumerate(rows):
         # If there's no file name
@@ -476,7 +493,7 @@ class XmlMD:
             "string(/mods:mods/mods:genre[@authority='cco'])", namespaces=ns
         )
         self.rights_management = "; ".join(
-            md.xpath("/mods:mods/mods:accessCondition", namespaces=ns)
+            md.xpath("/mods:mods/mods:accessCondition/text()", namespaces=ns)
         )
         self.rights_management_valueURI = "; ".join(
             md.xpath("mods:mods/mods:accessCondition/@valueURI", namespaces=ns)
