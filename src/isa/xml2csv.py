@@ -143,17 +143,22 @@ def save_csv(mds, output_path, reorder=True, new=False):
 
 def reorder_compound_objects(rows, new=False):
     if new:
+        print("new")
         fixed = []
         last_non_page_index = 0
         page_pattern = re.compile(
-            r"^([Ff]ront|[Bb]ack|[Cc]over|[Pp]age \d+|[Pp]g?\.? \d+)$"
+            r"^([Dd]rawings?|[Pp]hotographs?|[Ff]ront|[Bb]ack|([Ff]ront|[Bb]ack)? ?[Cc]over|([Bb]lank|[Tt]itle)? ?[Pp]age \d+|[Pp]g?\.? ?\d*)$"
         )
 
         for idx, row in enumerate(rows):
-            if page_pattern.match(row[0]):
+            print(row[1])
+            if page_pattern.match(row[1]):
+                print("matched")
                 fixed.append(row)
             else:
-                fixed.insert(last_non_page_index + 1, row)
+                fixed.insert(
+                    last_non_page_index + 1 if last_non_page_index > 0 else 0, row
+                )
                 last_non_page_index = idx
 
         return fixed
@@ -471,8 +476,8 @@ class XmlMD:
                 namespaces=ns,
             )
         )
-        self.dcmi_type = md.xpath(
-            "string(/mods:mods/mods:genre[@authority='dct'])", namespaces=ns
+        self.dcmi_type = "; ".join(
+            md.xpath("/mods:mods/mods:genre[@authority='dct']", namespaces=ns)
         )
         self.aat_genre_valueURI = "; ".join(
             md.xpath(
@@ -480,8 +485,8 @@ class XmlMD:
                 namespaces=ns,
             )
         )
-        self.dcmi_type_valueURI = md.xpath(
-            "string(/mods:mods/mods:genre[@authority='dct']/@valueURI)", namespaces=ns
+        self.dcmi_type_valueURI = "; ".join(
+            md.xpath("/mods:mods/mods:genre[@authority='dct']/@valueURI", namespaces=ns)
         )
         self.type_of_resource = md.xpath(
             "string(/mods:mods/mods:typeOfResource)", namespaces=ns

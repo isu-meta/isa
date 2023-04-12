@@ -260,7 +260,7 @@ class SpreadsheetMD:
 {self.subjects_to_xml(self.aat_genre, self.aat_genre_valueURI, 'genre authority="aat" type="genre"', "  ")}
 {self.subjects_to_xml(self.aat_type, self.aat_type_valueURI, 'genre authority="aat"', "  ")}
   <genre authority="cco">{escape(self.cco_description)}</genre>
-  <genre authority="dct" valueURI="{escape(self.dcmi_type_valueURI)}">{escape(self.dcmi_type)}</genre>
+{self.dcmi_to_xml(self.dcmi_type, self.dcmi_type_valueURI, "  ")}
   <typeOfResource>{escape(self.type_of_resource)}</typeOfResource>
  {self.rights_to_xml(self.rights_management, self.rights_management_valueURI, "  ")}
   <genre authority="imt">{escape(self.imt_type)}</genre>
@@ -293,6 +293,19 @@ class SpreadsheetMD:
   <note type="hardware/software">{escape(self.hardware_software)}</note>
 </mods>
 """
+
+    def dcmi_to_xml(self, types, uris, indent):
+        types_xml = []
+        for t, u in zip_longest(
+            types.strip().split(";"),
+            uris.strip().split(";"),
+            fillvalue="",
+        ):
+            types_xml.append(
+                f'{indent}<genre authority="dct" valueURI="{escape(self.dcmi_type_valueURI)}">{escape(self.dcmi_type)}</genre>'
+            )
+
+        return "\n".join(types_xml)
 
     def geographic_to_xml(self, terms, uris, coordinates, authority):
         xml_terms = []
