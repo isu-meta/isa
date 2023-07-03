@@ -66,6 +66,7 @@ class SpreadsheetMD:
         self.description = md.get("description", "")
         self.disclaimer = md.get("disclaimer", "")
         self.table_of_contents = md.get("table_of_contents", "")
+        self.transcript = md.get("transcript", "")
         self.annotation = md.get("annotation", "")
         self.url = md.get("url", "")
         self.language = md.get("language", "")
@@ -245,7 +246,7 @@ class SpreadsheetMD:
 {self.subject_names_to_xml(self.personal_name_subject, self.personal_name_subject_valueURI, "personal")}
   </subject>
   <subject authority="naf">
-{self.subject_names_to_xml(self.corporate_name_subject, self.corporate_name_subject_valueURI, "corporate")}
+{self.subject_names_to_xml(escape(self.corporate_name_subject), self.corporate_name_subject_valueURI, "corporate")}
   </subject>
 {self.geographic_to_xml(self.geographic_subject_lcsh, self.geographic_subject_lcsh_valueURI, self.coordinates, "lcsh")}
 {self.geographic_to_xml(self.geographic_subject_fast, self.geographic_subject_fast_valueURI, self.coordinates, "fast")}
@@ -302,7 +303,7 @@ class SpreadsheetMD:
             fillvalue="",
         ):
             types_xml.append(
-                f'{indent}<genre authority="dct" valueURI="{escape(self.dcmi_type_valueURI)}">{escape(self.dcmi_type)}</genre>'
+                f'{indent}<genre authority="dct" valueURI="{escape(u)}">{escape(t)}</genre>'
             )
 
         return "\n".join(types_xml)

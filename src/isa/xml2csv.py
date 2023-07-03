@@ -703,6 +703,8 @@ class XmlMD:
             self.frequency,
             self.digital_collection,
             self.digital_collection_ark,
+            self.related_exhibit,
+            self.related_exhibit_url,
             self.hardware_software,
             self.image_manipulation,
             self.file_size,
