@@ -477,7 +477,7 @@ class XmlMD:
             )
         )
         self.dcmi_type = "; ".join(
-            md.xpath("/mods:mods/mods:genre[@authority='dct']", namespaces=ns)
+            md.xpath("/mods:mods/mods:genre[@authority='dct']/text()", namespaces=ns)
         )
         self.aat_genre_valueURI = "; ".join(
             md.xpath(
