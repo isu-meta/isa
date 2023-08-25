@@ -365,7 +365,7 @@ class SpreadsheetMD:
             terms.strip().split(";"), uris.strip().split(";"), fillvalue=""
         ):
             xml_terms.append(
-                f'{indent}<{term_type} valueURI="{u.strip()}">{t.strip()}</{term_type_end}>'
+                f'{indent}<{term_type} valueURI="{u.strip()}">{escape(t.strip())}</{term_type_end}>'
             )
 
         return "\n".join(xml_terms)
