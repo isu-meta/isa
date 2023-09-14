@@ -141,19 +141,19 @@ def save_csv(mds, output_path, reorder=True, new=False):
         writer.writerows(csv_md)
 
 
+def is_page(md):
+    page_pattern = re.compile(
+        r"^(([Bb]ack|[Bb]iographical|[Ff]ront|[Hh]istorical)? ?([Bb]lank|[Cc]ontents|[Cc]over|[Dd]edication|[Dd]iagrams?|[Dd]rawings?|[Ii]llustrations?|[Ii]ndex|[Ii]ntroduction|[Mm]aps?|[Nn]otes?|[Pp]hotographs?|[Pp]ortraits?|[Pp]reface|[Tt]itle)?,? ?([Pp]age|[Pp]g?\.?)? ?(\d*[A-Za-z]?|[ivxIVX]*|Verso)?|-)$"
+    )
+    return page_pattern.match(md[1])
+
 def reorder_compound_objects(rows, new=False):
     if new:
-        print("new")
         fixed = []
         last_non_page_index = 0
-        page_pattern = re.compile(
-            r"^([Dd]rawings?|[Pp]hotographs?|[Ff]ront|[Bb]ack|([Ff]ront|[Bb]ack)? ?[Cc]over|([Bb]lank|[Tt]itle)? ?[Pp]age \d+|[Pp]g?\.? ?\d*)$"
-        )
 
         for idx, row in enumerate(rows):
-            print(row[1])
-            if page_pattern.match(row[1]):
-                print("matched")
+            if is_page(row):
                 fixed.append(row)
             else:
                 fixed.insert(
