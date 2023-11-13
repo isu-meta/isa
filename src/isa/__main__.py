@@ -12,6 +12,8 @@ def main():
     parser.add_argument("--alpha-sort", action="store_true")
     parser.add_argument("--skip-compound-reorder", action="store_true")
     parser.add_argument("--new-compound-reorder", action="store_true")
+    parser.add_argument("--new-mods", action="store_true")
+    parser.add_argument("--generate-dc", action="store_true")
     args = parser.parse_args()
 
     input_ = Path(args.input)
@@ -33,9 +35,18 @@ def main():
                 x2c.save_csv(csv, output)
     else:
         csv = c2x.load_csv(input_)
-        xmls = c2x.csv_to_xml(csv)
         output.mkdir(exist_ok=True)
-        c2x.save_multiple_xml(xmls, output)
+        if args.new_mods:
+            xmls = c2x.csv_to_xml2(csv)
+            for x in xmls:
+                c2x.save_xml2(x, "mods", output)
+        else:
+            xmls = c2x.csv_to_xml(csv)
+            c2x.save_multiple_xml(xmls, output)
+        if args.generate_dc:
+            xmls = c2x.csv_to_xml2(csv)
+            for x in xmls:
+                c2x.save_xml2(x, "dc", output)
 
 
 if __name__ == "__main__":
