@@ -312,22 +312,25 @@ class CsvRow:
         return None
 
     def _mods_digital_collection(self, update=True):
-        digital_collection = E.relatedItem(
-            E.titleInfo(
-                E.title(escape(self.digital_collection))
-            ),
-            E.identifier(
-                escape(self.digital_collection_ark),
-                type="ark",
-            ),
-            type="host",
-            displayLabel="Digital Collection",
-        )
+        if self.digital_collection or self.digital_collection_ark:
+            digital_collection = E.relatedItem(
+                E.titleInfo(
+                    E.title(escape(self.digital_collection))
+                ),
+                E.identifier(
+                    escape(self.digital_collection_ark),
+                    type="ark",
+                ),
+                type="host",
+                displayLabel="Digital Collection",
+            )
 
-        if update:
-            self.mods.append(digital_collection)
+            if update:
+                self.mods.append(digital_collection)
 
-        return digital_collection
+            return digital_collection
+
+        return None
 
     def _mods_digital_exhibit(self, update=True):
         if self.related_exhibit or self.related_exhibit_url:
@@ -476,7 +479,7 @@ class CsvRow:
             )
 
         if self.date_digital:
-            origin_info.apppend(
+            origin_info.append(
                 E.dateCaptured(
                     escape(self.date_digital),
                     encoding="iso8601",
@@ -1006,6 +1009,7 @@ class CsvRow:
             self.avian_id,
             self.uid,
             self.project_number,
+            self.pid if self.pid.startswith("isu:") else f"isu:{self.pid}",
         ]
         return self._dc_add_multiple_single_fields("identifier", identifiers, update)
 
